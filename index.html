@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sr. Burger - App Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background-color: #f4f6f8; margin: 0; padding: 0; color: #333; overscroll-behavior-y: none; padding-bottom: 80px; }
+        
+        /* CABECERA CON FRANJA AMARILLA */
+        header { 
+            background: white; 
+            padding: 10px; 
+            text-align: center; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+            position: relative; 
+            z-index: 100;
+            border-top: 20px solid #FFC107; 
+        }
+        .logo-main { width: 90px; height: auto; display: block; margin: 10px auto 0; border-radius: 50%; }
+        .status-bar { font-size: 0.8rem; padding: 5px; border-radius: 5px; display: inline-block; margin-top: 5px; font-weight: bold; }
+        .status-open { background: #e8f5e9; color: #2e7d32; }
+        .status-closed { background: #ffebee; color: #c62828; }
+
+        /* --- SLIDER INTERACTIVO --- */
+        .slider-container {
+            width: 100%;
+            overflow: hidden;
+            margin-top: 15px;
+            padding-bottom: 10px;
+            position: relative; 
+        }
+        .slider-wrapper {
+            display: flex;
+            width: 100%;
+            transition: transform 0.3s ease-out; 
+            cursor: grab;
+        }
+        .slider-wrapper:active { cursor: grabbing; }
+        .slide {
+            min-width: 100%;
+            padding: 0 15px; 
+            box-sizing: border-box;
+            position: relative;
+        }
+        .slide img {
+            width: 100%;
+            height: 180px; 
+            object-fit: contain; 
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            pointer-events: none; 
+            background: #fff; 
+        }
+
+        /* Flechas del Slider */
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.7);
+            border: none;
+            width: 35px; height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .prev-btn { left: 25px; }
+        .next-btn { right: 25px; }                
+
+        /* CATEGORÍAS */
+        .categorias-wrapper { 
+            overflow-x: auto; white-space: nowrap; padding: 10px 20px 20px; background: #f4f6f8; -webkit-overflow-scrolling: touch; 
+        }
+        .cat-btn { display: inline-block; padding: 8px 15px; margin-right: 10px; background: white; border: 1px solid #ddd; border-radius: 20px; font-size: 0.9rem; color: #555; cursor: pointer; transition: all 0.3s; }
+        .cat-btn.active { background: #FF5722; color: white; border-color: #FF5722; font-weight: 600; box-shadow: 0 4px 10px rgba(255, 87, 34, 0.3); }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 0 20px; }
+
+        /* PRODUCTOS */
+        #grid-productos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03); text-align: center; padding-bottom: 12px; cursor: pointer; transition: transform 0.1s ease; position: relative; }
+        .card:active { transform: scale(0.96); }
+        .card img { width: 100%; height: 130px; object-fit: cover; background: #eee; display: block; }
+        .card h3 { margin: 12px 0 4px; font-size: 0.95rem; font-weight: 600; }
+        
+        /* ESTILOS PRECIO Y OFERTA */
+        .card .precio { color: #FF5722; font-weight: bold; font-size: 1rem; }
+        .precio-tachado { text-decoration: line-through; color: #999; font-size: 0.85rem; margin-right: 5px; }
+        .badge-promo {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #FFEB3B;
+            color: #d32f2f;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 5;
+            animation: palpitar 1.5s infinite;
+        }
+        @keyframes palpitar { 0% {transform: scale(1);} 50% {transform: scale(1.1);} 100% {transform: scale(1);} }
+        
+        /* CARRITO */
+        .carrito-box { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 -5px 25px rgba(0,0,0,0.05); margin-top: 20px; }
+        .form-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #eee; border-radius: 8px; background: #fafafa; font-size: 1rem; font-family: inherit; }
+        
+        .btn-gps { background-color: #2196F3; color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; margin-bottom: 12px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+        
+        .btn-whatsapp { background: #25D366; color: white; width: 100%; padding: 16px; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); transition: transform 0.1s; }
+        .btn-whatsapp:active { transform: scale(0.98); }
+        .btn-whatsapp:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+
+        .resumen-pago { margin-top: 15px; border-top: 1px dashed #ddd; padding-top: 15px; }
+        .fila-pago { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem; color: #555; }
+        .total-final { font-weight: bold; font-size: 1.3rem; color: #333; margin-top: 12px; border-top: 1px solid #eee; padding-top: 10px; }
+        .fila-descuento { color: #28a745; font-weight: bold; display: none; }
+        .btn-borrar-item { background-color: #ffebee; color: #d32f2f; border: none; border-radius: 4px; padding: 4px 8px; font-weight: bold; cursor: pointer; margin-left: 10px; font-size: 0.8rem; }
+
+        /* ESTILO NUEVO PARA CUPONES */
+        .fila-cupon { color: #E91E63; font-weight: bold; display: none; }
+        .box-cupon { display: flex; gap: 8px; margin-bottom: 10px; margin-top: 15px; border-top: 1px dashed #eee; padding-top: 15px;}
+        .btn-cupon { background: #607d8b; color: white; border: none; border-radius: 8px; padding: 0 15px; font-weight: 600; cursor: pointer; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 2000; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; }
+        .modal.active { display: flex; opacity: 1; }
+        .modal-content { background: white; width: 90%; max-width: 400px; padding: 0; border-radius: 20px; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.3); transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 90vh; overflow-y: auto; }
+        .modal.active .modal-content { transform: scale(1); }
+        .modal-img-container { width: 100%; height: 250px; overflow: hidden; background: #000; position: relative; }
+        .modal-img { width: 100%; height: 100%; object-fit: cover; }
+        .modal-body { padding: 20px; text-align: left; }
+        
+        .close { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.9); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; color: #333; z-index: 10; }
+        .btn-add { background: #FF5722; color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; margin-top: 15px; font-size: 1rem; font-weight: 600; }
+        
+        .seccion-extras { margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; }
+        .extra-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 0.9rem; }
+        .extra-check { transform: scale(1.3); margin-right: 10px; accent-color: #FF5722; }
+        .input-notas { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-top: 10px; font-family: inherit; font-size: 0.9rem; }
+
+        /* CONTROL DE CANTIDAD */
+        .control-cantidad {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0 10px 0;
+            gap: 15px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .btn-cant {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #FF5722;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .btn-cant:active { transform: scale(0.9); background: #eee; }
+        .num-cant { font-size: 1.3rem; font-weight: bold; min-width: 30px; text-align: center; }
+
+        #banner-app { background: #e8f5e9; color: #2e7d32; padding: 12px; text-align: center; font-weight: 500; margin: 10px 20px; border-radius: 10px; display: none; }
+        .alerta-horario { background: #ffebee; color: #c62828; padding: 10px; text-align: center; border-radius: 10px; margin-top: 10px; display: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="https://i.postimg.cc/VrZbSSJJ/Logo(1).jpg" alt="Sr Burger Logo" class="logo-main">
+    <div id="status-bar" class="status-bar status-open">🟢 Abierto ahora</div>
+</header>
+
+<div class="slider-container" id="slider-container">
+    <div class="slider-wrapper" id="slider-wrapper">
+        <div class="slide"><img src="https://i.postimg.cc/9fTwdgR0/Imagen_grande.png" alt="Promo 1"></div>
+        <div class="slide"><img src="https://i.postimg.cc/1Rn9dVRv/Imagen_grande2.jpg" alt="Promo 2"></div>
+        <div class="slide"><img src="https://i.postimg.cc/pV9QrCkR/Flayer_2.jpg" alt="Promo 3"></div>
+    </div>
+    <button class="slider-btn prev-btn" onclick="moverSlider(-1)">❮</button>
+    <button class="slider-btn next-btn" onclick="moverSlider(1)">❯</button>
+</div>
+
+<div class="categorias-wrapper">
+    <button class="cat-btn active" onclick="filtrar('todos', this)">Todo</button>
+    <button class="cat-btn" onclick="filtrar('combos', this)">Combos</button>
+    <button class="cat-btn" onclick="filtrar('hamburguesas', this)">Hamburguesas</button>
+    <button class="cat-btn" onclick="filtrar('hotdogs', this)">Hot Dogs</button>
+    <button class="cat-btn" onclick="filtrar('acompanamientos', this)">Papas/Extras</button>
+    <button class="cat-btn" onclick="filtrar('bebidas', this)">Bebidas</button>
+</div>
+
+<div class="container">
+    <div id="banner-app">📱 ¡Descuento de App activado!</div>
+
+    <div id="grid-productos"></div>
+
+    <div class="carrito-box">
+        <h3>🛍️ Tu Pedido</h3>
+        <ul id="lista-carrito" style="padding-left: 0; list-style: none; color: #777; margin-bottom: 15px;">
+            <li style="text-align: center; padding: 10px;">Tu carrito está vacío</li>
+        </ul>
+
+        <div class="box-cupon">
+            <input type="text" id="input-cupon" class="form-input" placeholder="Código de cupón" style="margin-bottom: 0;">
+            <button class="btn-cupon" onclick="aplicarCupon()">Aplicar</button>
+        </div>
+        <p id="msg-cupon" style="font-size: 0.85rem; margin-top: 5px; display: none;"></p>
+        <div class="resumen-pago">
+            <div class="fila-pago"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
+            <div class="fila-pago fila-descuento" id="fila-descuento"><span>Desc. App (<span id="txt-pct-desc">0</span>%)</span><span id="monto-descuento">-$0.00</span></div>
+            
+            <div class="fila-pago fila-cupon" id="fila-cupon-resumen">
+                <span>Cupón (<span id="txt-nombre-cupon"></span>)</span>
+                <span id="monto-cupon">-$0.00</span>
+            </div>
+
+            <div class="fila-pago" style="color: #2196F3;"><span>Envío <span id="lbl-distancia" style="font-size:0.8rem"></span></span><span id="costo-envio">$0.00</span></div>
+            <div class="total-final fila-pago"><span>Total</span><span id="total-final">$0.00</span></div>
+        </div>
+        
+        <div id="aviso-cerrado" class="alerta-horario">🔴 EL RESTAURANTE ESTÁ CERRADO</div>
+
+        <div style="margin-top: 25px;">
+            <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; display: block;">Tus Datos</label>
+            <input type="text" id="nombre" class="form-input" placeholder="Nombre completo">
+            
+            <button class="btn-gps" onclick="obtenerUbicacion()">
+                <span style="font-size: 1.2rem;">📍</span> Usar ubicación actual
+            </button>
+            <textarea id="direccion" class="form-input" rows="2" placeholder="Detalle (Casa, Edificio, Referencia)"></textarea>
+            
+            <button id="btn-confirmar" class="btn-whatsapp" onclick="enviarPedido()">Confirmar Pedido</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal" class="modal" onclick="cerrarModalFuera(event)">
+    <div class="modal-content">
+        <div class="close" onclick="cerrarModal()">×</div>
+        <div class="modal-img-container"><img id="modal-img" class="modal-img" src="" alt=""></div>
+        
+        <div class="modal-body">
+            <h2 id="modal-titulo" style="margin: 0; font-size: 1.3rem;"></h2>
+            
+            <div id="modal-precio-container" style="margin: 5px 0 10px;"></div>
+            
+            <p id="modal-desc" style="color: #666; font-size: 0.9rem; line-height: 1.4;"></p>
+            
+            <div id="contenedor-extras" class="seccion-extras" style="display:none;">
+                <h4 style="margin: 5px 0;">Agrega Extras:</h4>
+                <div id="lista-extras"></div>
+            </div>
+
+            <input type="text" id="nota-producto" class="input-notas" placeholder="Nota (ej: Sin cebolla, Ketchup aparte)">
+
+            <div class="control-cantidad">
+                <button class="btn-cant" onclick="cambiarCantidad(-1)">-</button>
+                <span id="cantidad-display" class="num-cant">1</span>
+                <button class="btn-cant" onclick="cambiarCantidad(1)">+</button>
+            </div>
+
+            <button id="btn-agregar-modal" class="btn-add" onclick="agregarAlCarrito()">Agregar al Carrito</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // ⚙️ CONFIGURACIÓN GENERAL
+    // ==========================================
+    const TIENDA_LAT = 8.9915178; 
+    const TIENDA_LON = -79.4982421; 
+    const PRECIO_ESTANDAR = 3.50; 
+    const CELULAR_WHATSAPP = "50765560226"; 
+    const DESCUENTO_APP_PORCENTAJE = 10; 
+    
+    // ⏰ HORARIO (Formato 24h)
+    const HORA_APERTURA = 16; // 4:00 PM
+    const HORA_CIERRE = 00;   // 12:00 AM
+    
+    // 🗓️ DIAS DE LA SEMANA (Para configurar promociones)
+    // 0=Domingo, 1=Lunes, 2=Martes, 3=Miércoles, 4=Jueves, 5=Viernes, 6=Sábado
+
+    // --- LISTA DE CUPONES VÁLIDOS ---
+    const CUPONES_ACTIVOS = {
+        "ORIGINAL10": 10,   // Cupón: ORIGINAL10 da 10%
+        "BURGER5": 5,       // Ejemplo otro cupón
+        "VIPSR": 15         // Ejemplo otro cupón
+    };
+    // ==========================================
+
+    const listaExtras = [
+        { nombre: "Extra Queso", precio: 1.50 },
+        { nombre: "Extra Bacon", precio: 0.75 },
+        { nombre: "Extra Carne", precio: 1.50 },
+        { nombre: "Extra Ensalada", precio: 1.50 }
+    ];
+
+    // --- LISTA DE PRODUCTOS ---
+    const productos = [
+        // COMBOS
+        { 
+            id: 101, cat: "combos", nombre: "Combo Personal", precio: 7.99, 
+            imagen: "https://i.postimg.cc/QCGMtpS4/Combo1.jpg", desc: "Hamburguesa especial + Papas + Soda.", extras: true,
+            // EJEMPLO: Este combo baja a $6.50 los Lunes(1) y Viernes(5)
+            diasPromo: [1], precioPromo: 6.50
+        },
+        { id: 102, cat: "combos", nombre: "Combo Doble", precio: 15.00, imagen: "https://i.postimg.cc/fL0LDHj4/Combo2.jpg", desc: "2 Hamburguesas Especiales+ 2 Papas + 2 Sodas.", extras: true,
+        diasPromo: [0,1,2,3,4,5,6,], precioPromo:11.99
+        },
+        { id: 103, cat: "combos", nombre: "Combo Familiar", precio: 22.00, imagen: "https://i.postimg.cc/gJ6JmMqF/Combo3.jpg", desc: "3 Hamburguesas Especiales + 3 Papas + Soda 1.5L.", extras: true },
+        { id: 104, cat: "combos", nombre: "Combo Hot dog especial", precio: 7.50, imagen: "https://i.postimg.cc/KcgpKB5c/Diseño_sin_título_20251223_140649_0000.jpg", desc: "Hot dog especial + Papas + Soda ", extras: true },
+        { id: 105, cat: "combos", nombre: "Combo doble Hot dog especial", precio: 14.50, imagen: "https://i.postimg.cc/vBvRCnSG/Diseno-sin-titulo-20251223-140225-0000.jpg", desc: "2 Hot dog especiales + 2 Papas + 2 Sodas", extras: true },
+        { id: 106, cat: "combos", nombre: "Hot dog americano", precio: 7.50, imagen: "https://i.postimg.cc/7PTtC0NL/Diseño_sin_título_20251223_140457_0000.jpg", desc: "Hot dog americano + Papas + Sodas", extras: true },
+        { id: 107, cat: "combos", nombre: "2 Hot dogs americanos", precio: 14.50, imagen: "https://i.postimg.cc/8krXFMbc/Diseño_sin_título_20251223_140538_0000.jpg", desc: "2 Hot dogs americanos + 2 Papas + 2 Sodas", extras: true },
+
+        // HAMBURGUESAS
+        { id: 1, cat: "hamburguesas", nombre: "Hamburguesa Sencilla", precio: 4.50, imagen: "https://i.postimg.cc/VNz4r9Qm/Sencilla.jpg", desc: "Pan brioche, Tomate, Ensalada de la casa, Cebolla Caramelizada, Ripio de papa, Carne 110g.", extras: true,
+      diasPromo: [1, 5], precioPromo:3.49 },
+        { id: 2, cat: "hamburguesas", nombre: "Hamburguesa Especial", precio: 5.99, imagen: "https://i.postimg.cc/jjRvw60R/Especial-hamburguesa.jpg", desc: "Pan brioche, Tomate, Ensalada de la casa, Cebolla Caramelizada, Ripio de papa, Tocineta, Queso fundido, Carne 110g. ", extras: true,
+        diasPromo: [0,1,2,3,4,5,6,], precioPromo:4.99
+        },
+        { id: 3, cat: "hamburguesas", nombre: "Hamburguesa Super", precio: 8.00, imagen: "https://i.postimg.cc/8CTwJdQ1/Super.jpg", desc: "Pan brioche, Tomate, Ensalada de la casa, Cebolla Caramelizada, Ripio de papa, Doble carne 110g, Doble tocineta, Doble queso", extras: true },
+        
+        // HOT DOGS
+        { id: 4, cat: "hotdogs", nombre: "Hot dog pequeño", precio: 3.00, imagen: "https://i.postimg.cc/zfqpbwZZ/Pequeno.jpg", desc: "Pan pequeño, Ensalada de la casa, Cebolla caramelizada, Queso fundido, Salchicha pequeña", extras: true },
+        { id: 5, cat: "hotdogs", nombre: "Hot dog grande", precio: 4.50, imagen: "https://i.postimg.cc/zfqpbwm2/Grande.jpg", desc: "Pan, Ensalada de la casa, Cebolla caramelizada, Queso fundido, Salchicha", extras: true },
+        { id: 6, cat: "hotdogs", nombre: "Hot dog Especial", precio: 5.50, imagen: "https://i.postimg.cc/xd9gJGr4/Especial.jpg", desc: "Con queso y salsas.", extras: true },
+        { id: 7, cat: "hotdogs", nombre: "Hot dog Americano", precio: 5.50, imagen: "https://i.postimg.cc/BvJNL5Wk/Americano.jpg", desc: "Salchicha americana.", extras: true },
+        
+        // EXTRAS Y BEBIDAS
+        { id: 8, cat: "acompanamientos", nombre: "Papas Fritas", precio: 1.50, imagen: "https://i.postimg.cc/43tfWBC6/Papas.jpg", desc: "Corte clásico.", extras: false },
+        { id: 9, cat: "bebidas", nombre: "Coca-Cola", precio: 1.50, imagen: "https://i.postimg.cc/66bkGng9/9781_5.png", desc: "350ml fría.", extras: false },
+        { id: 10, cat: "bebidas", nombre: "Ginger Ale", precio: 1.50, imagen: "https://i.postimg.cc/XNFyhkWk/7faf15df0731f5ea25d9114abfad565e_81a852da_7566_42dd_b05b_0e9ba01cf532_938x.png", desc: "350ml fría.", extras: false },
+        { id: 11, cat: "bebidas", nombre: "Jugo hit mango", precio: 2.00, imagen: "https://i.postimg.cc/YCBLMGpJ/jugohitmango500ml.png", desc: "500ml fría.", extras: false },
+        { id: 12, cat: "bebidas", nombre: "Jugo hit mora", precio: 2.00, imagen: "https://i.postimg.cc/sgCGsQjR/jugohitmora500ml.png", desc: "500ml fría.", extras: false },
+        { id: 13, cat: "bebidas", nombre: "Jugo hit lulo", precio: 2.00, imagen: "https://i.postimg.cc/htRQczDW/HIT_500_LULO_1.png", desc: "500ml fría.", extras: false },
+        { id: 14, cat: "bebidas", nombre: "Jugo hit naranja piña", precio: 2.00, imagen: "https://i.postimg.cc/Dw34nJv3/jugohitnaranjapina500ml.png", desc: "500ml fría.", extras: false },
+        { id: 15, cat: "bebidas", nombre: "Pony malta", precio: 2.00, imagen: "https://i.postimg.cc/VsMbTWwq/Pony_Malta_330ml_1.png", desc: "350ml fría.", extras: false },
+        
+    ];
+
+    let carrito = [];
+    let productoActual = null;
+    let costoEnvioActual = 0;
+    let esApp = false; 
+    let cantidadSeleccionada = 1;
+
+    // VARIABLES PARA CUPONES
+    let cuponAplicadoNombre = "";
+    let cuponDescuentoPct = 0;
+
+    // VARIABLES SLIDER
+    let sliderIndex = 0;
+    let sliderInterval;
+    let startX = 0;
+    let endX = 0;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        cargarCarritoMemoria();
+        verificarHorario();
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('modo') === 'app') {
+            esApp = true;
+            document.getElementById('banner-app').style.display = 'block';
+            document.getElementById('fila-descuento').style.display = 'flex';
+            document.getElementById('txt-pct-desc').innerText = DESCUENTO_APP_PORCENTAJE;
+        }
+
+        renderizarProductos(productos);
+        actualizarCarritoUI();
+        iniciarSlider();
+    });
+
+    // --- FUNCIÓN PARA DETECTAR SI ES DÍA DE PROMO ---
+    function esDiaDePromo(producto) {
+        if (!producto.diasPromo) return false; // Si no tiene configuración de promo, no es promo
+        const hoy = new Date().getDay(); // Devuelve 0-6 (Dom-Sab)
+        return producto.diasPromo.includes(hoy);
+    }
+
+    function iniciarSlider() {
+        const sliderContainer = document.getElementById('slider-container');
+        const wrapper = document.getElementById('slider-wrapper');
+        
+        startAutoSlide();
+
+        sliderContainer.addEventListener('mouseenter', stopAutoSlide);
+        sliderContainer.addEventListener('mouseleave', startAutoSlide);
+        sliderContainer.addEventListener('touchstart', stopAutoSlide);
+        sliderContainer.addEventListener('touchend', startAutoSlide);
+
+        sliderContainer.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; });
+        sliderContainer.addEventListener('touchmove', (e) => { endX = e.touches[0].clientX; });
+        sliderContainer.addEventListener('touchend', () => {
+            if (startX > endX + 50) moverSlider(1);
+            else if (startX < endX - 50) moverSlider(-1);
+        });
+    }
+
+    function startAutoSlide() {
+        if(sliderInterval) clearInterval(sliderInterval);
+        sliderInterval = setInterval(() => moverSlider(1), 4000); 
+    }
+
+    function stopAutoSlide() { clearInterval(sliderInterval); }
+
+    function moverSlider(direction) {
+        const wrapper = document.getElementById('slider-wrapper');
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        sliderIndex += direction;
+        if (sliderIndex >= totalSlides) sliderIndex = 0;
+        else if (sliderIndex < 0) sliderIndex = totalSlides - 1;
+        wrapper.style.transform = `translateX(-${sliderIndex * 100}%)`;
+    }
+
+    function verificarHorario() {
+        const ahora = new Date();
+        const hora = ahora.getHours();
+        const statusDiv = document.getElementById('status-bar');
+        const aviso = document.getElementById('aviso-cerrado');
+        const btn = document.getElementById('btn-confirmar');
+
+        if (hora < HORA_APERTURA || hora >= HORA_CIERRE) {
+            statusDiv.innerText = "🔴 Cerrado";
+            statusDiv.className = "status-bar status-closed";
+            aviso.style.display = "block";
+            btn.disabled = true;
+            btn.innerText = "Cerrado (Vuelve a las 4pm)";
+            return false;
+        } else {
+            statusDiv.innerText = "🟢 Abierto ahora";
+            return true;
+        }
+    }
+
+    function filtrar(categoria, btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (categoria === 'todos') {
+            renderizarProductos(productos);
+        } else {
+            const filtrados = productos.filter(p => p.cat === categoria);
+            renderizarProductos(filtrados);
+        }
+    }
+
+    function renderizarProductos(lista) {
+        const grid = document.getElementById('grid-productos');
+        grid.innerHTML = '';
+        lista.forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = function() { abrirModal(p); };
+            
+            // LÓGICA DE PRECIO VISUAL
+            let htmlPrecio = `<div class="precio">$${p.precio.toFixed(2)}</div>`;
+            let htmlBadge = '';
+            
+            if (esDiaDePromo(p)) {
+                htmlPrecio = `<div class="precio"><span class="precio-tachado">$${p.precio.toFixed(2)}</span> $${p.precioPromo.toFixed(2)}</div>`;
+                htmlBadge = `<div class="badge-promo">¡OFERTA HOY!</div>`;
+            }
+
+            card.innerHTML = `
+                ${htmlBadge}
+                <img src="${p.imagen}">
+                <h3>${p.nombre}</h3>
+                ${htmlPrecio}
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    const modal = document.getElementById('modal');
+    
+    function abrirModal(producto) {
+        productoActual = producto;
+        
+        cantidadSeleccionada = 1;
+        document.getElementById('cantidad-display').innerText = cantidadSeleccionada;
+
+        document.getElementById('modal-img').src = producto.imagen;
+        document.getElementById('modal-titulo').innerText = producto.nombre;
+        document.getElementById('modal-desc').innerText = producto.desc;
+        
+        // MOSTRAR PRECIO CORRECTO EN MODAL
+        const containerPrecio = document.getElementById('modal-precio-container');
+        if (esDiaDePromo(producto)) {
+            containerPrecio.innerHTML = `<h3 style="color:#FF5722; font-size:1.3rem;"><span class="precio-tachado" style="color:#999;">$${producto.precio.toFixed(2)}</span> $${producto.precioPromo.toFixed(2)}</h3>`;
+        } else {
+            containerPrecio.innerHTML = `<h3 style="color:#FF5722; font-size:1.3rem;">$${producto.precio.toFixed(2)}</h3>`;
+        }
+
+        document.getElementById('nota-producto').value = ""; 
+        
+        const containerExtras = document.getElementById('contenedor-extras');
+        const listaExtrasDiv = document.getElementById('lista-extras');
+        listaExtrasDiv.innerHTML = "";
+
+        if (producto.extras) {
+            containerExtras.style.display = "block";
+            listaExtras.forEach((extra, index) => {
+                const div = document.createElement('div');
+                div.className = "extra-row";
+                div.innerHTML = `
+                    <label>
+                        <input type="checkbox" class="extra-check" value="${index}">
+                        ${extra.nombre}
+                    </label>
+                    <span style="font-weight:bold">+$${extra.precio.toFixed(2)}</span>
+                `;
+                listaExtrasDiv.appendChild(div);
+            });
+        } else {
+            containerExtras.style.display = "none";
+        }
+
+        const btn = document.getElementById('btn-agregar-modal');
+        btn.innerText = "Agregar al Carrito";
+        btn.style.backgroundColor = "#FF5722";
+        
+        modal.classList.add('active'); 
+    }
+    
+    function cambiarCantidad(n) {
+        cantidadSeleccionada += n;
+        if (cantidadSeleccionada < 1) cantidadSeleccionada = 1;
+        document.getElementById('cantidad-display').innerText = cantidadSeleccionada;
+    }
+    
+    function cerrarModal() { modal.classList.remove('active'); }
+    function cerrarModalFuera(e) { if (e.target == modal) cerrarModal(); }
+
+    function agregarAlCarrito() {
+        // DETECTAR PRECIO BASE (NORMAL O PROMO)
+        let precioBase = productoActual.precio;
+        if (esDiaDePromo(productoActual)) {
+            precioBase = productoActual.precioPromo;
+        }
+
+        let extrasSeleccionados = [];
+        let costoExtras = 0;
+        
+        if (productoActual.extras) {
+            const checks = document.querySelectorAll('.extra-check:checked');
+            checks.forEach(c => {
+                const idx = c.value;
+                const extra = listaExtras[idx];
+                extrasSeleccionados.push(extra.nombre);
+                costoExtras += extra.precio;
+            });
+        }
+
+        const precioUnitarioFinal = precioBase + costoExtras;
+        const nota = document.getElementById('nota-producto').value.trim();
+
+        for(let i = 0; i < cantidadSeleccionada; i++) {
+            const itemCarrito = {
+                ...productoActual, 
+                precioFinal: precioUnitarioFinal, // Guarda el precio YA calculado (promo o normal)
+                extras: extrasSeleccionados,
+                nota: nota,
+                idUnico: Date.now() + Math.random()
+            };
+            carrito.push(itemCarrito);
+        }
+
+        guardarCarritoMemoria();
+        actualizarCarritoUI();
+        
+        const btn = document.getElementById('btn-agregar-modal');
+        btn.innerText = `¡${cantidadSeleccionada} Agregados!`;
+        btn.style.backgroundColor = "#4CAF50";
+        setTimeout(() => { btn.innerText = "Agregar otro"; btn.style.backgroundColor = "#FF5722"; }, 1000);
+    }
+
+    function guardarCarritoMemoria() {
+        localStorage.setItem('srBurgerCarrito', JSON.stringify(carrito));
+    }
+
+    function cargarCarritoMemoria() {
+        const guardado = localStorage.getItem('srBurgerCarrito');
+        if (guardado) {
+            carrito = JSON.parse(guardado);
+        }
+    }
+
+    function eliminarItem(idUnico) {
+        carrito = carrito.filter(item => item.idUnico !== idUnico);
+        guardarCarritoMemoria();
+        actualizarCarritoUI();
+    }
+
+    // --- FUNCIÓN APLICAR CUPÓN ---
+    function aplicarCupon() {
+        const input = document.getElementById('input-cupon');
+        const msg = document.getElementById('msg-cupon');
+        const codigo = input.value.trim().toUpperCase(); 
+        
+        if (!codigo) {
+            alert("Por favor escribe un código.");
+            return;
+        }
+
+        if (CUPONES_ACTIVOS.hasOwnProperty(codigo)) {
+            // Cupón válido
+            cuponDescuentoPct = CUPONES_ACTIVOS[codigo];
+            cuponAplicadoNombre = codigo;
+            
+            msg.style.display = 'block';
+            msg.style.color = '#2e7d32'; // Verde
+            msg.innerText = `✅ ¡Cupón ${codigo} aplicado! -${cuponDescuentoPct}%`;
+            input.value = ""; // Limpiar campo
+            actualizarCarritoUI(); // Recalcular totales
+        } else {
+            // Cupón inválido
+            alert("❌ El código no es válido.");
+            cuponDescuentoPct = 0;
+            cuponAplicadoNombre = "";
+            msg.style.display = 'none';
+            actualizarCarritoUI();
+        }
+    }
+
+    function actualizarCarritoUI() {
+        const lista = document.getElementById('lista-carrito');
+        let subtotal = 0;
+        lista.innerHTML = ""; 
+        
+        if(carrito.length === 0) {
+            lista.innerHTML = "<li style='text-align: center; padding: 10px; border: 1px dashed #ddd; border-radius: 8px;'>Tu carrito está vacío</li>";
+        } else {
+            carrito.forEach((item) => {
+                subtotal += item.precioFinal;
+                const li = document.createElement('li');
+                li.style.cssText = "padding: 10px 0; border-bottom: 1px solid #eee;";
+                
+                let textoExtras = "";
+                if(item.extras.length > 0) textoExtras = `<div style="font-size:0.8rem; color:#666;">+ ${item.extras.join(", ")}</div>`;
+                if(item.nota) textoExtras += `<div style="font-size:0.8rem; color:#d32f2f; font-style:italic;">Nota: ${item.nota}</div>`;
+
+                li.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="font-weight:600">${item.nombre}</span>
+                            ${textoExtras}
+                        </div>
+                        <div style="display:flex; align-items:center;">
+                            <span style="font-weight:bold; margin-right:10px;">$${item.precioFinal.toFixed(2)}</span>
+                            <button class="btn-borrar-item" onclick="eliminarItem(${item.idUnico})">X</button>
+                        </div>
+                    </div>
+                `;
+                lista.appendChild(li);
+            });
+        }
+
+        // 1. Descuento App
+        let descuentoApp = 0;
+        if (esApp) descuentoApp = subtotal * (DESCUENTO_APP_PORCENTAJE / 100);
+
+        // 2. Descuento Cupón
+        let descuentoCupon = 0;
+        const filaCupon = document.getElementById('fila-cupon-resumen');
+        
+        if (cuponDescuentoPct > 0) {
+            descuentoCupon = subtotal * (cuponDescuentoPct / 100);
+            filaCupon.style.display = 'flex';
+            document.getElementById('txt-nombre-cupon').innerText = cuponAplicadoNombre;
+            document.getElementById('monto-cupon').innerText = "-$" + descuentoCupon.toFixed(2);
+        } else {
+            filaCupon.style.display = 'none';
+        }
+        
+        let envioFinal = costoEnvioActual; 
+        let total = (subtotal - descuentoApp - descuentoCupon) + envioFinal;
+
+        document.getElementById('subtotal').innerText = "$" + subtotal.toFixed(2);
+        document.getElementById('monto-descuento').innerText = "-$" + descuentoApp.toFixed(2);
+        
+        const lblEnvio = document.getElementById('costo-envio');
+        if(costoEnvioActual === 0 && carrito.length > 0) {
+            lblEnvio.innerText = "$0.00 (Falta GPS)";
+            lblEnvio.style.color = "#d32f2f";
+        } else {
+            lblEnvio.innerText = "$" + envioFinal.toFixed(2);
+            lblEnvio.style.color = "#2196F3";
+        }
+
+        document.getElementById('total-final').innerText = "$" + total.toFixed(2);
+    }
+
+    const REGLAS_ENVIO = [
+        { km_maximo: 3, precio: 2.00 },
+        { km_maximo: 6, precio: 4.50 },
+        { km_maximo: 10, precio: 8.00 },
+        { km_maximo: 100, precio: 15.00 }
+    ];
+
+    function calcularDistanciaKM(lat1, lon1, lat2, lon2) {
+        const R = 6371; 
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c; 
+    }
+
+    function obtenerUbicacion() {
+        const direccionInput = document.getElementById('direccion');
+        direccionInput.value = "📍 Calculando...";
+        if (!navigator.geolocation) return alert("Tu celular no tiene GPS.");
+        
+        navigator.geolocation.getCurrentPosition((pos) => {
+            const latC = pos.coords.latitude; const lonC = pos.coords.longitude;
+            const dist = calcularDistanciaKM(TIENDA_LAT, TIENDA_LON, latC, lonC);
+            
+            let precio = PRECIO_ESTANDAR;
+            for (let r of REGLAS_ENVIO) { if (dist <= r.km_maximo) { precio = r.precio; break; } }
+            costoEnvioActual = precio;
+            
+            direccionInput.value = `https://www.google.com/maps?q=${latC},${lonC}`;
+            document.getElementById('lbl-distancia').innerText = `(${dist.toFixed(1)} km)`;
+            alert(`📍 Distancia: ${dist.toFixed(1)} km.\nEnvío: $${precio.toFixed(2)}`);
+            actualizarCarritoUI();
+        }, (err) => { alert("Error GPS. Sube la web a internet."); direccionInput.value=""; });
+    }
+
+    function enviarPedido() {
+        if (!verificarHorario()) return alert("El restaurante está cerrado.");
+        
+        const nombre = document.getElementById('nombre').value;
+        const direccion = document.getElementById('direccion').value;
+        
+        if(carrito.length === 0) return alert("Tu carrito está vacío.");
+        if(!nombre) return alert("Por favor escribe tu nombre.");
+        if(costoEnvioActual === 0) return alert("⚠️ Por favor usa el botón de 'Ubicación' para calcular el costo del delivery...");
+        if(!direccion) return alert("Falta la dirección.");
+
+        let subtotal = 0; carrito.forEach(i => subtotal += i.precioFinal);
+        
+        // Calculos finales para mensaje
+        let descuentoApp = 0;
+        if (esApp) descuentoApp = subtotal * (DESCUENTO_APP_PORCENTAJE / 100);
+
+        let descuentoCupon = 0;
+        if (cuponDescuentoPct > 0) descuentoCupon = subtotal * (cuponDescuentoPct / 100);
+
+        let envio = costoEnvioActual;
+        let total = (subtotal - descuentoApp - descuentoCupon) + envio;
+
+        let msg = `Hola, soy *${nombre}*.\nEntrega: ${direccion}\n\n*PEDIDO:*\n`;
+        
+        carrito.forEach(i => {
+            msg += `- ${i.nombre} ($${i.precioFinal.toFixed(2)})`;
+            if (i.extras.length > 0) msg += `\n  + Extras: ${i.extras.join(", ")}`;
+            if (i.nota) msg += `\n  + Nota: ${i.nota}`;
+            msg += `\n`;
+        });
+        
+        msg += `\nSubtotal: $${subtotal.toFixed(2)}`;
+        if (esApp) msg += `\n🎉 Desc. App: -$${descuentoApp.toFixed(2)}`;
+        if (cuponDescuentoPct > 0) msg += `\n🎫 Cupón ${cuponAplicadoNombre}: -$${descuentoCupon.toFixed(2)}`;
+        msg += `\nEnvío: $${envio.toFixed(2)}`;
+        msg += `\n*TOTAL: $${total.toFixed(2)}*`;
+        
+        msg += `\n\nQuedo atento a los datos de pago yappy/transferencia`;
+        
+        window.open(`https://wa.me/${CELULAR_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+</script>
+</body>
+</html>
