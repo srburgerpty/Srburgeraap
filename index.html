@@ -289,8 +289,8 @@
     const DESCUENTO_APP_PORCENTAJE = 10; 
     
     // ⏰ HORARIO (Formato 24h)
-    const HORA_APERTURA = 16; // 4:00 PM
-    const HORA_CIERRE = 00;   // 12:00 AM
+    const HORA_APERTURA = 6; // 4:00 PM
+    const HORA_CIERRE = 23;59  // 11:59 PM
     
     // 🗓️ DIAS DE LA SEMANA (Para configurar promociones)
     // 0=Domingo, 1=Lunes, 2=Martes, 3=Miércoles, 4=Jueves, 5=Viernes, 6=Sábado
@@ -315,18 +315,19 @@
         // COMBOS
         { 
             id: 101, cat: "combos", nombre: "Combo Personal", precio: 7.99, 
-            imagen: "https://i.postimg.cc/QCGMtpS4/Combo1.jpg", desc: "Hamburguesa especial + Papas + Soda.", extras: true,
+            imagen: "https://i.postimg.cc/Prhyd69z/1769194729841.png", desc: "Hamburguesa especial + Papas + Soda.", extras: true,
             // EJEMPLO: Este combo baja a $6.50 los Lunes(1) y Viernes(5)
             diasPromo: [1], precioPromo: 6.50
         },
-        { id: 102, cat: "combos", nombre: "Combo Doble", precio: 15.00, imagen: "https://i.postimg.cc/fL0LDHj4/Combo2.jpg", desc: "2 Hamburguesas Especiales+ 2 Papas + 2 Sodas.", extras: true,
-        diasPromo: [0,1,2,3,4,5,6,], precioPromo:11.99
+        { id: 102, cat: "combos", nombre: "Combo Doble", precio: 15.00, imagen: "https://i.postimg.cc/sxJpBrqR/1769193849569.png", desc: "2 Hamburguesas Especiales+ 2 Papas + 2 Sodas.", extras: true,
+        diasPromo: [0,1,2,3,4,5,6,], precioPromo:12.99
         },
+        { id: 106, cat: "combos", nombre: "Combo doble super", precio: 18.99, imagen: "https://i.postimg.cc/4y1zKgqk/1769193762437.png", desc: "2 Hamburguesas super + 2 Papas + 2 Sodas", extras: true },
         { id: 103, cat: "combos", nombre: "Combo Familiar", precio: 22.00, imagen: "https://i.postimg.cc/gJ6JmMqF/Combo3.jpg", desc: "3 Hamburguesas Especiales + 3 Papas + Soda 1.5L.", extras: true },
-        { id: 104, cat: "combos", nombre: "Combo Hot dog especial", precio: 7.50, imagen: "https://i.postimg.cc/KcgpKB5c/Diseño_sin_título_20251223_140649_0000.jpg", desc: "Hot dog especial + Papas + Soda ", extras: true },
-        { id: 105, cat: "combos", nombre: "Combo doble Hot dog especial", precio: 14.50, imagen: "https://i.postimg.cc/vBvRCnSG/Diseno-sin-titulo-20251223-140225-0000.jpg", desc: "2 Hot dog especiales + 2 Papas + 2 Sodas", extras: true },
-        { id: 106, cat: "combos", nombre: "Hot dog americano", precio: 7.50, imagen: "https://i.postimg.cc/7PTtC0NL/Diseño_sin_título_20251223_140457_0000.jpg", desc: "Hot dog americano + Papas + Sodas", extras: true },
-        { id: 107, cat: "combos", nombre: "2 Hot dogs americanos", precio: 14.50, imagen: "https://i.postimg.cc/8krXFMbc/Diseño_sin_título_20251223_140538_0000.jpg", desc: "2 Hot dogs americanos + 2 Papas + 2 Sodas", extras: true },
+        { id: 104, cat: "combos", nombre: "Combo Hot dog especial", precio: 7.50, imagen: "https://i.postimg.cc/dVV9yhqM/1769194135216.png", desc: "Hot dog especial + Papas + Soda ", extras: true },
+        { id: 105, cat: "combos", nombre: "Combo doble Hot dog especial", precio: 14.50, imagen: "https://i.postimg.cc/htYVQMyv/1769192593073.png", desc: "2 Hot dog especiales + 2 Papas + 2 Sodas", extras: true },
+         
+      
 
         // HAMBURGUESAS
         { id: 1, cat: "hamburguesas", nombre: "Hamburguesa Sencilla", precio: 4.50, imagen: "https://i.postimg.cc/VNz4r9Qm/Sencilla.jpg", desc: "Pan brioche, Tomate, Ensalada de la casa, Cebolla Caramelizada, Ripio de papa, Carne 110g.", extras: true,
@@ -337,10 +338,10 @@
         { id: 3, cat: "hamburguesas", nombre: "Hamburguesa Super", precio: 8.00, imagen: "https://i.postimg.cc/8CTwJdQ1/Super.jpg", desc: "Pan brioche, Tomate, Ensalada de la casa, Cebolla Caramelizada, Ripio de papa, Doble carne 110g, Doble tocineta, Doble queso", extras: true },
         
         // HOT DOGS
-        { id: 4, cat: "hotdogs", nombre: "Hot dog pequeño", precio: 3.00, imagen: "https://i.postimg.cc/zfqpbwZZ/Pequeno.jpg", desc: "Pan pequeño, Ensalada de la casa, Cebolla caramelizada, Queso fundido, Salchicha pequeña", extras: true },
+        { id: 4, cat: "hotdogs", nombre: "Perra especial", precio: 5.99, imagen: "https://i.postimg.cc/nLnTjK8w/Perra.jpg", desc: "Pan hot dog, Ensalada de la casa, Cebolla caramelizada, Queso fundido, Se cambia la salchicha por tocineta", extras: true },
         { id: 5, cat: "hotdogs", nombre: "Hot dog grande", precio: 4.50, imagen: "https://i.postimg.cc/zfqpbwm2/Grande.jpg", desc: "Pan, Ensalada de la casa, Cebolla caramelizada, Queso fundido, Salchicha", extras: true },
-        { id: 6, cat: "hotdogs", nombre: "Hot dog Especial", precio: 5.50, imagen: "https://i.postimg.cc/xd9gJGr4/Especial.jpg", desc: "Con queso y salsas.", extras: true },
-        { id: 7, cat: "hotdogs", nombre: "Hot dog Americano", precio: 5.50, imagen: "https://i.postimg.cc/BvJNL5Wk/Americano.jpg", desc: "Salchicha americana.", extras: true },
+        { id: 6, cat: "hotdogs", nombre: "Hot dog Especial", precio: 5.99, imagen: "https://i.postimg.cc/xd9gJGr4/Especial.jpg", desc: "Con queso y salsas.", extras: true },
+        
         
         // EXTRAS Y BEBIDAS
         { id: 8, cat: "acompanamientos", nombre: "Papas Fritas", precio: 1.50, imagen: "https://i.postimg.cc/43tfWBC6/Papas.jpg", desc: "Corte clásico.", extras: false },
